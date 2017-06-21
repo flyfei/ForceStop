@@ -1,1 +1,1 @@
-![](https://raw.githubusercontent.com/flyfei/ForceStop/master/screenshots/screenshots.gif)
+<img width="300" src="https://raw.githubusercontent.com/flyfei/ForceStop/master/screenshots/screenshots.gif"/>
