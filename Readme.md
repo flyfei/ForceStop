@@ -1,0 +1,1 @@
+![](https://raw.githubusercontent.com/flyfei/ForceStop/master/screenshots/screenshots.gif)
