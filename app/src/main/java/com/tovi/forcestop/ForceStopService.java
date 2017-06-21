@@ -6,9 +6,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.provider.Settings;
 import android.text.TextUtils;
@@ -19,7 +16,6 @@ import android.widget.Toast;
 import com.jaredrummler.android.processes.AndroidProcesses;
 import com.jaredrummler.android.processes.models.AndroidAppProcess;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -31,20 +27,14 @@ public class ForceStopService extends AccessibilityService {
     private static final String TEXT_FORCE_STOP = "强行停止";
     private static final String TEXT_DETERMINE = "确定";
     private static final CharSequence NAME_ALERT_DIALOG = "android.app.AlertDialog";
-    private static final String CURRENT_PACKAGE = "com.tovi.forcestop";
     private static final String PACKAGE = "package";
-    private static final List<String> PACKAGE_PREFIX = new ArrayList<>();
+    private SharedPrefs sharedPrefs;
     private int foregroundPushId = 1;
-
-    static {
-        PACKAGE_PREFIX.add(CURRENT_PACKAGE);
-        PACKAGE_PREFIX.add("com.tencent.mm");
-    }
 
     @Override
     public void onCreate() {
         super.onCreate();
-
+        sharedPrefs = new SharedPrefs(this);
     }
 
     @Override
@@ -93,42 +83,18 @@ public class ForceStopService extends AccessibilityService {
     private void init() {
         isOpen = true;
         packageList.clear();
-        getLocalApp(getPackageManager());
         List<AndroidAppProcess> processes = AndroidProcesses.getRunningAppProcesses();
-        LinkedList<String> runTask = new LinkedList();
         if (!processes.isEmpty()) {
             String packageName;
             for (AndroidAppProcess process : processes) {
                 packageName = process.getPackageName();
                 System.out.println(packageName);
-                if (packageList.contains(packageName) && !runTask.contains(packageName)) {
-                    runTask.add(packageName);
+                if (sharedPrefs.isBlackApp(packageName) && !packageList.contains(packageName)) {
+                    packageList.add(packageName);
                 }
             }
         }
-        packageList.clear();
-        packageList.addAll(runTask);
         System.out.println("=====" + packageList);
-    }
-
-    private void getLocalApp(PackageManager packageManager) {
-        List<PackageInfo> packageInfos = packageManager.getInstalledPackages(0);
-        for (PackageInfo packageInfo : packageInfos) {
-            //过滤掉系统app
-            if ((ApplicationInfo.FLAG_SYSTEM & packageInfo.applicationInfo.flags) != 0) {
-                continue;
-            }
-            if (packageInfo.applicationInfo.loadIcon(packageManager) == null) {
-                continue;
-            }
-            final String packageName = packageInfo.packageName;
-
-            if (PACKAGE_PREFIX.contains(packageName)) continue;
-
-            if (!packageList.contains(packageName)) {
-                packageList.add(packageName);
-            }
-        }
     }
 
 
@@ -138,7 +104,7 @@ public class ForceStopService extends AccessibilityService {
             showPackageDetail(packageName);
         } else {
             isOpen = false;
-            Toast.makeText(this, "Ok", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Clean completed", Toast.LENGTH_SHORT).show();
         }
     }
 

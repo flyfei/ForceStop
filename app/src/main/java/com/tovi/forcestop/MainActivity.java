@@ -8,16 +8,21 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.ListView;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ListView list = (ListView) findViewById(R.id.app_list);
+        CheckableListAdapter adapter = new CheckableListAdapter(this, AppUtil.getLocalApp(getPackageManager()));
+        list.setAdapter(adapter);
     }
 
     public void openSetting() {
@@ -29,11 +34,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void open(View view) {
+    public void clear(View view) {
         if (isAccessibilitySettingsOn(this))
             startService(new Intent(this, ForceStopService.class));
-        else
+        else {
+            Toast.makeText(this, "打开设置", Toast.LENGTH_SHORT).show();
             openSetting();
+        }
     }
 
     // To check if service is enabled
