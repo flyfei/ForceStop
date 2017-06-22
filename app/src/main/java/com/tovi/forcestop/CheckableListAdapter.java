@@ -10,6 +10,8 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -28,6 +30,15 @@ public class CheckableListAdapter extends BaseAdapter {
         this.items = items;
         this.layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.sharedPrefs = new SharedPrefs(context.getApplicationContext());
+        // sort
+        if (this.items != null && !this.items.isEmpty()) {
+            Collections.sort(this.items, new Comparator<AppInfo>() {
+                @Override
+                public int compare(AppInfo o1, AppInfo o2) {
+                    return sharedPrefs.isBlackApp(o1.appPName) ? 1 : -1;
+                }
+            });
+        }
     }
 
     @Override
